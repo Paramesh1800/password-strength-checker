@@ -8,7 +8,7 @@ body {
 }
 
 .container {
-  background: lightpink;
+  background: white;
   padding: 30px;
   border-radius: 10px;
   width: 320px;
@@ -21,7 +21,7 @@ input[type="password"] {
   padding: 10px;
   margin-top: 10px;
   border-radius: 5px;
-  border: 1px solid #ccc;
+  border: 2px solid #ccc;
 }
 
 #toggle-password {
