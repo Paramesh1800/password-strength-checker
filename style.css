@@ -1,0 +1,62 @@
+body {
+  font-family: Arial, sans-serif;
+  background: grey;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  background: lightpink;
+  padding: 30px;
+  border-radius: 10px;
+  width: 320px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  position: relative;
+}
+
+input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+#toggle-password {
+  position: absolute;
+  top: 82px;
+  right: 15px;
+  cursor: pointer;
+}
+
+#strength-bar {
+  height: 10px;
+  margin-top: 15px;
+  background: #eee;
+  border-radius: 5px;
+  transition: background-color 0.3s, width 0.3s;
+}
+
+#strength-text {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+ul#requirements {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 15px;
+}
+
+ul#requirements li {
+  color: #888;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+ul#requirements li.valid {
+  color: green;
+  font-weight: bold;
+}
