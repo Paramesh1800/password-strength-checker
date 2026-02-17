@@ -1,0 +1,5 @@
+Flask==3.0.3
+requests==2.31.0
+beautifulsoup4==4.12.3
+PyJWT==2.8.0
+python-dateutil==2.9.0.post0
