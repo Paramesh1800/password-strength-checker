@@ -3,6 +3,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const bar = document.getElementById("strength-bar");
   const label = document.getElementById("strength-label");
   const toggle = document.getElementById("toggle-password");
+  const generateBtn = document.getElementById("generate-btn");
+  const breachStatus = document.getElementById("breach-status");
+  const breachText = document.getElementById("breach-text");
 
   const commonPasswords = [
     '123456', 'password', '123456789', 'qwerty', '12345678',
@@ -13,13 +16,30 @@ document.addEventListener("DOMContentLoaded", () => {
   let debounceTimer;
 
   passwordInput.addEventListener("input", () => {
+    const password = passwordInput.value;
     checkPasswordStrength();
-    
-    // Optimized: Sync with backend after 800ms of inactivity
+
+    // Optimized: Sync with backend and check for breaches after inactivity
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
-        syncWithBackend(passwordInput.value);
-    }, 800);
+    if (password.length > 0) {
+      debounceTimer = setTimeout(() => {
+        syncWithBackend(password);
+        checkBreach(password);
+      }, 800);
+    } else {
+      breachStatus.classList.add("hidden");
+    }
+  });
+
+  generateBtn.addEventListener("click", () => {
+    fetch("/generate_password")
+      .then(res => res.json())
+      .then(data => {
+        passwordInput.value = data.password;
+        // Trigger manual check
+        checkPasswordStrength();
+        checkBreach(data.password);
+      });
   });
 
   toggle.addEventListener("click", togglePassword);
@@ -55,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
 
     const current = config[score - 1] || { color: "#ef4444", text: "Critically Weak" };
-    
+
     bar.style.width = (score * 20) + "%";
     bar.style.backgroundColor = current.color;
     label.textContent = current.text;
@@ -65,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateRequirement(id, isValid) {
     const element = document.getElementById(id);
     if (!element) return;
-    
+
     const icon = element.querySelector("i");
     if (isValid) {
       element.classList.add("valid");
@@ -80,6 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
     bar.style.width = "0%";
     label.textContent = "Waiting...";
     label.style.color = "inherit";
+    breachStatus.classList.add("hidden");
     ["length", "uppercase", "number", "special", "not-common"].forEach(id => {
       const element = document.getElementById(id);
       element.classList.remove("valid");
@@ -88,12 +109,39 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function syncWithBackend(password) {
-    if (password.length === 0) return;
     fetch("/save_password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: password })
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: password })
     }).catch(err => console.error("Sync error:", err));
+  }
+
+  function checkBreach(password) {
+    if (password.length === 0) return;
+
+    breachStatus.classList.remove("hidden");
+    breachStatus.className = "breach-status warning";
+    breachText.textContent = "Checking data breach status...";
+
+    fetch("/check_pwned", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: password })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.pwned) {
+          breachStatus.className = "breach-status danger";
+          breachText.textContent = `Found in ${data.count.toLocaleString()} breaches! Change this immediately.`;
+        } else {
+          breachStatus.className = "breach-status success";
+          breachText.textContent = "Safe! No known data breaches found.";
+        }
+      })
+      .catch(err => {
+        breachStatus.classList.add("hidden");
+        console.error("Breach check error:", err);
+      });
   }
 
   function togglePassword() {

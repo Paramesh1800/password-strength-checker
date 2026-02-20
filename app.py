@@ -1,4 +1,7 @@
 import os
+import secrets
+import string
+
 from flask import Flask, render_template, request, jsonify
 import requests
 from bs4 import BeautifulSoup
@@ -489,9 +492,43 @@ def scan():
 def save_password():
     data = request.get_json()
     password = data.get("password") if data else None
-    logger.info(f"Captured password for analysis: {password}")
-    # In a real app, you might check this against a local 'pwned' database here
+    logger.info(f"Captured password for analysis.")
     return jsonify({"status": "received", "length": len(password) if password else 0})
+
+@app.route("/generate_password")
+def generate_password():
+    length = 16
+    alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
+    password = ''.join(secrets.choice(alphabet) for _ in range(length))
+    return jsonify({"password": password})
+
+@app.route("/check_pwned", methods=["POST"])
+def check_pwned():
+    data = request.get_json()
+    password = data.get("password")
+    if not password:
+        return jsonify({"error": "No password provided"}), 400
+    
+    sha1_hash = hashlib.sha1(password.encode('utf-8')).hexdigest().upper()
+    prefix = sha1_hash[:5]
+    suffix = sha1_hash[5:]
+    
+    try:
+        response = requests.get(f"https://api.pwnedpasswords.com/range/{prefix}")
+        if response.status_code != 200:
+            return jsonify({"error": "Failed to check breach database"}), 500
+        
+        hashes = (line.split(':') for line in response.text.splitlines())
+        count = 0
+        for h, c in hashes:
+            if h == suffix:
+                count = int(c)
+                break
+        
+        return jsonify({"pwned": count > 0, "count": count})
+    except Exception as e:
+        logger.error(f"HIBP check error: {str(e)}")
+        return jsonify({"error": "Breach database unreachable"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

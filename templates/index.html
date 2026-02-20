@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,16 +11,28 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
   <div class="container">
     <div class="header">
       <h2>ShieldCheck</h2>
       <p class="subtitle">Secure your digital identity with strong passwords.</p>
     </div>
-   
+
     <div class="input-group">
       <input type="password" id="password" placeholder="Enter your password..." spellcheck="false" autocomplete="off" />
       <div id="toggle-password">👁️</div>
+    </div>
+
+    <div class="actions">
+      <button id="generate-btn" class="btn-secondary">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Strong Password
+      </button>
+    </div>
+
+    <div id="breach-status" class="breach-status hidden">
+      <i class="fa-solid fa-shield-virus"></i>
+      <span id="breach-text">Checking for data breaches...</span>
     </div>
 
     <div class="strength-meter">
@@ -43,4 +56,5 @@
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
+
 </html>
