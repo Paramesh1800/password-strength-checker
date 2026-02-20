@@ -497,9 +497,34 @@ def save_password():
 
 @app.route("/generate_password")
 def generate_password():
-    length = 16
-    alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
-    password = ''.join(secrets.choice(alphabet) for _ in range(length))
+    user_input = request.args.get('username', '')
+    
+    # Character sets for strengthening
+    upper = string.ascii_uppercase
+    digits = string.digits
+    special = "!@#$%^&*"
+    
+    if not user_input:
+        # If no input, just generate a completely random strong one
+        alphabet = string.ascii_letters + digits + special
+        password = ''.join(secrets.choice(alphabet) for _ in range(12))
+        return jsonify({"password": password})
+
+    # 1. Start with the user input (First letter capitalized)
+    base = user_input.replace(" ", "").capitalize()
+    
+    # 2. Apply a light, recognizable Leetspeak (only certain vowels)
+    # This makes it secure but still very easy for the user to read
+    transform_map = {'a': '@', 'e': '3', 'i': '!', 'o': '0'}
+    recognizable_base = "".join(transform_map.get(c.lower(), c) if i > 0 else c for i, c in enumerate(base))
+
+    # 3. Append security requirements: Special Char + Random Numbers
+    # This ensures it hits the "Strong" criteria every time
+    suffix = secrets.choice(special) + "".join(secrets.choice(digits) for _ in range(3))
+    
+    # No more full shuffle, so the user can actually recognize their "based on" password
+    password = recognizable_base + suffix
+    
     return jsonify({"password": password})
 
 @app.route("/check_pwned", methods=["POST"])

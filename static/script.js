@@ -32,7 +32,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   generateBtn.addEventListener("click", () => {
-    fetch("/generate_password")
+    const username = document.getElementById("username").value;
+    const url = username ? `/generate_password?username=${encodeURIComponent(username)}` : "/generate_password";
+
+    fetch(url)
       .then(res => res.json())
       .then(data => {
         passwordInput.value = data.password;
@@ -43,6 +46,25 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   toggle.addEventListener("click", togglePassword);
+
+  const copyBtn = document.getElementById("copy-password");
+  copyBtn.addEventListener("click", () => {
+    const password = passwordInput.value;
+    if (!password) return;
+
+    navigator.clipboard.writeText(password).then(() => {
+      const icon = copyBtn.querySelector("i");
+      icon.classList.remove("fa-copy");
+      icon.classList.add("fa-check");
+      icon.style.color = "var(--success)";
+
+      setTimeout(() => {
+        icon.classList.remove("fa-check");
+        icon.classList.add("fa-copy");
+        icon.style.color = "";
+      }, 2000);
+    });
+  });
 
   function checkPasswordStrength() {
     const password = passwordInput.value;
