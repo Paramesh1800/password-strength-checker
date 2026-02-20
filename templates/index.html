@@ -3,25 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Password Strength Checker</title>
+  <title>GuardForce | Password Strength Checker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-     <img src="{{ url_for('static', filename='lock1.jpeg') }}" class="top-left">
   <div class="container">
-    <h2>Password Strength Checker</h2>
+    <div class="header">
+      <h2>ShieldCheck</h2>
+      <p class="subtitle">Secure your digital identity with strong passwords.</p>
+    </div>
    
-    <input type="password" id="password" placeholder="Enter password" oninput="checkPasswordStrength()" />
-    <div id="toggle-password" onclick="togglePassword()">👁️</div>
+    <div class="input-group">
+      <input type="password" id="password" placeholder="Enter your password..." spellcheck="false" autocomplete="off" />
+      <div id="toggle-password">👁️</div>
+    </div>
 
-    <div id="strength-bar"></div>
-    <p id="strength-text"></p>
+    <div class="strength-meter">
+      <div class="progress-bg">
+        <div id="strength-bar"></div>
+      </div>
+      <div id="strength-text">
+        <span>Security Level</span>
+        <span id="strength-label">Waiting...</span>
+      </div>
+    </div>
 
-    <ul id="requirements">
-      <li id="length">✔ At least 8 characters</li>
-      <li id="uppercase">✔ At least one uppercase letter</li>
-      <li id="number">✔ At least one number</li>
-      <li id="special">✔ At least one special character</li>
+    <ul class="requirements-list" id="requirements">
+      <li id="length"><i><i class="fa-solid fa-circle-dot"></i></i> 8+ Characters</li>
+      <li id="uppercase"><i><i class="fa-solid fa-circle-dot"></i></i> Uppercase Letter</li>
+      <li id="number"><i><i class="fa-solid fa-circle-dot"></i></i> Numerical Digit</li>
+      <li id="special"><i><i class="fa-solid fa-circle-dot"></i></i> Special Character</li>
+      <li id="not-common"><i><i class="fa-solid fa-circle-dot"></i></i> Unique Patterns</li>
     </ul>
   </div>
 
