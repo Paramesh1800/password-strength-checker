@@ -102,6 +102,47 @@ document.addEventListener("DOMContentLoaded", () => {
     bar.style.backgroundColor = current.color;
     label.textContent = current.text;
     label.style.color = current.color;
+
+    // Add cracking time estimate
+    updateCrackingTime(password);
+  }
+
+  function updateCrackingTime(password) {
+    let poolSize = 0;
+    if (/[a-z]/.test(password)) poolSize += 26;
+    if (/[A-Z]/.test(password)) poolSize += 26;
+    if (/[0-9]/.test(password)) poolSize += 10;
+    if (/[^A-Za-z0-9]/.test(password)) poolSize += 32;
+
+    const entropy = password.length * Math.log2(poolSize || 1);
+    const guesses = Math.pow(2, entropy);
+
+    // Assume 100 billion guesses per second (high-end GPU cluster)
+    const seconds = guesses / 100_000_000_000;
+
+    const timeText = document.getElementById("time-to-crack") || createTimeElement();
+    timeText.textContent = `Estimated time to crack: ${formatTime(seconds)}`;
+  }
+
+  function formatTime(seconds) {
+    if (seconds < 1) return "Instantly";
+    if (seconds < 60) return Math.floor(seconds) + " seconds";
+    if (seconds < 3600) return Math.floor(seconds / 60) + " minutes";
+    if (seconds < 86400) return Math.floor(seconds / 3600) + " hours";
+    if (seconds < 31536000) return Math.floor(seconds / 86400) + " days";
+    if (seconds < 31536000000) return Math.floor(seconds / 31536000) + " years";
+    return "Centuries";
+  }
+
+  function createTimeElement() {
+    const el = document.createElement("p");
+    el.id = "time-to-crack";
+    el.style.fontSize = "0.75rem";
+    el.style.color = "var(--text-muted)";
+    el.style.marginTop = "8px";
+    el.style.textAlign = "center";
+    document.querySelector(".strength-meter").appendChild(el);
+    return el;
   }
 
   function updateRequirement(id, isValid) {
